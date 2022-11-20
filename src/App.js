@@ -1,23 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import create from "zustand";
+import { persist } from "zustand/middleware";
+
+import { Header } from "./components/Header";
+import { Projects } from "./components/Projects";
+
+import { schema } from "./zustand/schema";
+import { setters } from "./zustand/setters";
+
+import "./App.scss";
+import "antd/dist/antd.min.css";
+
+export const useStore = create(
+  persist((...params) => ({
+    ...schema,
+    ...setters(...params),
+  })),
+  {
+    name: "projects-storage",
+    getStorage: () => sessionStorage,
+  }
+);
+
+const selectors = (state) => ({
+  projects: state.projects,
+});
 
 function App() {
+  const { projects } = useStore(selectors);
+
+  const isEmptyProjects = !projects?.length;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div
+      className="app-container"
+      style={{ backgroundColor: isEmptyProjects && "white" }}
+    >
+      <Header />
+      <Projects projects={projects} />
     </div>
   );
 }
